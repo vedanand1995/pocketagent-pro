@@ -5,7 +5,6 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "plugins": ["llama.rn"],
     "android": {
       "package": "com.pocketagent.pro",
       "armv7": false,
