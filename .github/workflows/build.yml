@@ -33,6 +33,7 @@ jobs:
       - name: 6 Bundle JS (diagnostic)
         run: |
           set -o pipefail
+          mkdir -p android/app/src/main/assets
           npx react-native bundle --platform android --dev false \
             --entry-file index.ts \
             --bundle-output android/app/src/main/assets/index.android.bundle \
