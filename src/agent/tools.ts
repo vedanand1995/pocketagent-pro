@@ -27,8 +27,8 @@ async function webSearch(query: string): Promise<string> {
       { headers: { "User-Agent": "Mozilla/5.0 (Linux; Android 14)" } }
     );
     const html = await res.text();
-    const titles = [...html.matchAll(/class="result__a"[^>]*>([^<]+)</a>/g)].map((m) => stripTags(m[1]));
-    const snips = [...html.matchAll(/class="result__snippet"[^>]*>(.*?)</a>/gs)].map((m) => stripTags(m[1]));
+    const titles = [...html.matchAll(/class="result__a"[^>]*>([^<]+)<\/a>/g)].map((m) => stripTags(m[1]));
+    const snips = [...html.matchAll(/class="result__snippet"[^>]*>(.*?)<\/a>/gs)].map((m) => stripTags(m[1]));
     const results: string[] = [];
     for (let i = 0; i < Math.min(5, titles.length); i++) {
       results.push((i + 1) + ". " + titles[i] + " — " + (snips[i] || ""));
