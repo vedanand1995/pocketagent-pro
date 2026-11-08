@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { StatusBar } from "expo-status-bar";
-import { SafeAreaView, View, Text, Pressable, StyleSheet } from "react-native";
+import { StatusBar as ExpoStatusBar } from "expo-status-bar";
+import { StatusBar, SafeAreaView, View, Text, Pressable, StyleSheet } from "react-native";
 import * as IntentLauncher from "expo-intent-launcher";
 import ChatScreen from "./ChatScreen";
 import TerminalScreen from "./TerminalScreen";
@@ -31,16 +31,16 @@ export default function App() {
   }, []);
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: "chat", label: "💬" },
-    { id: "agent", label: "🤖" },
-    { id: "terminal", label: "⌨" },
-    { id: "models", label: "📦" },
-    { id: "files", label: "📎" },
+    { id: "chat", label: "\u{1F4AC}" },
+    { id: "agent", label: "\u{1F916}" },
+    { id: "terminal", label: "\u{2328}" },
+    { id: "models", label: "\u{1F4E6}" },
+    { id: "files", label: "\u{1F4CE}" },
   ];
 
   return (
     <SafeAreaView style={styles.root}>
-      <StatusBar style="light" />
+      <ExpoStatusBar style="light" />
       <View style={styles.tabBar}>
         {tabs.map((t) => (
           <Pressable key={t.id} style={[styles.tab, tab === t.id && styles.tabActive]} onPress={() => setTab(t.id)}>
@@ -65,7 +65,11 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#0d1117" },
+  root: {
+    flex: 1,
+    backgroundColor: "#0d1117",
+    paddingTop: StatusBar.currentHeight || 24,
+  },
   tabBar: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#21262d" },
   tab: { flex: 1, paddingVertical: 12, alignItems: "center" },
   tabActive: { borderBottomWidth: 2, borderBottomColor: "#238636" },
