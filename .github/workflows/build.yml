@@ -13,18 +13,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Install dependencies
-        run: pnpm install
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -32,13 +24,20 @@ jobs:
           distribution: "zulu"
           java-version: "17"
 
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
       - name: Prebuild Android
-        run: pnpm exec expo prebuild -p android --no-install
+        run: npx expo prebuild -p android --no-install
+
+      - name: Install Android deps
+        run: |
+          cd android
+          chmod +x gradlew
 
       - name: Build Release APK
         run: |
           cd android
-          chmod +x gradlew
           ./gradlew assembleRelease
 
       - name: Upload APK
