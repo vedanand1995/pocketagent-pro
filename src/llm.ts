@@ -26,15 +26,16 @@ export class LlmEngine {
     return this.ctx !== null;
   }
 
-  async load(modelPath: string): Promise<void> {
+  async load(modelPathWithUri: string): Promise<void> {
     await this.unload();
 
-    // sanity check: file must exist and be a plausible GGUF size (> 50MB)
-    const info = await FS.getInfoAsync(modelPath);
-    if (!info.exists || typeof info.size !== "number" || info.size < 50 * 1024 * 1024) {
-      throw new Error(
-        "Model file missing or too small — re-download the model (incomplete download)."
-      );
+    // llama.rn native code needs a plain filesystem path, not a file:// URI
+    const modelPath = modelPathWithUri.replace(/^file:\/\//, "");
+
+    // sanity check: file must exist and be a plausible GGUF size
+    const info = await FS.getInfoAsync("file://" + modelPath);
+    if (!info.exists || typeof (info as any).size !== "number" || (info as any).size < 50 * 1024 * 1024) {
+      throw new Error("Model file missing or too small — DELETE and re-download the model.");
     }
 
     this.ctx = await initLlama({
