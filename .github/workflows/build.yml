@@ -10,37 +10,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: 1 Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: 2 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - name: 3 Setup Java
+        uses: actions/setup-java@v5
         with:
           distribution: "zulu"
           java-version: "17"
 
-      - name: Install dependencies
+      - name: 4 Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Prebuild Android
+      - name: 5 Prebuild Android
         run: npx expo prebuild -p android --no-install
 
-      - name: Install Android deps
+      - name: 6 Bundle JS (diagnostic)
+        run: |
+          set -o pipefail
+          npx react-native bundle --platform android --dev false \
+            --entry-file index.ts \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res 2>&1 | tail -n 80
+          echo "BUNDLE_OK"
+
+      - name: 7 Build Release APK
         run: |
           cd android
           chmod +x gradlew
-
-      - name: Build Release APK
-        run: |
-          cd android
           ./gradlew assembleRelease
 
-      - name: Upload APK
+      - name: 8 Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: pocketagent-pro-apk
