@@ -37,16 +37,31 @@ jobs:
           npx react-native bundle --platform android --dev false \
             --entry-file index.ts \
             --bundle-output android/app/src/main/assets/index.android.bundle \
-            --assets-dest android/app/src/main/res 2>&1 | tail -n 80
+            --assets-dest android/app/src/main/res 2>&1 | tail -n 40
           echo "BUNDLE_OK"
 
-      - name: 7 Build Release APK
+      - name: 7 Patch Gradle wrapper (smaller dist + longer timeout)
+        run: |
+          cd android
+          sed -i 's/gradle-8.8-all.zip/gradle-8.8-bin.zip/' gradle/wrapper/gradle-wrapper.properties
+          grep -q networkTimeout gradle/wrapper/gradle-wrapper.properties || \
+            echo "networkTimeout=120000" >> gradle/wrapper/gradle-wrapper.properties
+          cat gradle/wrapper/gradle-wrapper.properties
+
+      - name: 8 Build Release APK (with retry)
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          n=0
+          until [ "$n" -ge 3 ]; do
+            ./gradlew assembleRelease && break
+            n=$((n+1))
+            echo "Gradle attempt $n failed - retrying in 20s"
+            sleep 20
+          done
+          if [ "$n" -ge 3 ]; then echo "Gradle failed after 3 attempts"; exit 1; fi
 
-      - name: 8 Upload APK
+      - name: 9 Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: pocketagent-pro-apk
